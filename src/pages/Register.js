@@ -50,7 +50,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('/users/register', {
+      const response = await fetch('https://fitnessapp-api-ln8u.onrender.com/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

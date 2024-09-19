@@ -1,0 +1,102 @@
+/* src/pages/Workouts.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  --primary-color: #336749;
+  --secondary-color: #ffffff;
+  --accent-color: #f4f4f9;
+  --error-color: #e74c3c;
+  --table-header-bg: #336749;
+  --table-header-color: #ffffff;
+  --table-row-hover: #f1f1f1;
+  --border-color: #ddd;
+  --font-family: 'Roboto', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+}
+
+.workouts-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--accent-color);
+  min-height: calc(100vh - 60px); /* Adjust based on navbar height */
+}
+
+.workouts-container h2 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+}
+
+.error-message {
+  color: var(--error-color);
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.workouts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--secondary-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.workouts-table th,
+.workouts-table td {
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.workouts-table th {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-color);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.workouts-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.workouts-table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+@media (max-width: 768px) {
+  .workouts-container {
+    padding: 20px 10px;
+  }
+
+  .workouts-table th,
+  .workouts-table td {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .workouts-container h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workouts-table th,
+  .workouts-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .workouts-container h2 {
+    font-size: 1.2rem;
+  }
+}

@@ -1,12 +1,16 @@
 // src/pages/Login.js
 import React, { useState, useContext } from 'react';
 import { UserContext } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
   const { login } = useContext(UserContext);
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +19,7 @@ const Login = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/users/login', {
+      const response = await fetch('https://fitnessapp-api-ln8u.onrender.com/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,7 +33,8 @@ const Login = () => {
       }
 
       const userData = await response.json();
-      login(userData); // Assuming userData contains user information
+      login(userData); // Store user data in context and localStorage
+      navigate('/workouts'); // Redirect to workouts page
 
     } catch (err) {
       setError(err.message);

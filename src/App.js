@@ -16,6 +16,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/workouts" element={<Workouts />} />
+          <Route path="/" element={<Login />} /> {/* Default route */}
         </Routes>
       </Router>
     </UserProvider>
