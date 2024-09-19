@@ -124,7 +124,14 @@ const Workouts = () => {
   };
 
   // Delete workout
+  // Delete workout
   const handleDeleteWorkout = async (id) => {
+    // Confirm before deleting
+    const isConfirmed = window.confirm('Are you sure you want to delete this workout?');
+    if (!isConfirmed) {
+      return; // Exit the function if the user clicks 'Cancel'
+    }
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/deleteWorkout/${id}`, {
         method: 'DELETE',
@@ -147,6 +154,7 @@ const Workouts = () => {
       setError(err.message);
     }
   };
+
 
   // Update workout
   const handleUpdateWorkout = async (e) => {
