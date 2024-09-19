@@ -1,25 +1,32 @@
 // src/pages/Login.js
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import { useNavigate, Link } from 'react-router-dom';
+import '../styles/sharedStyles.css'; // Import the CSS file
 
 const Login = () => {
-  const { login } = useContext(UserContext);
+  const { login, user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent form submission from reloading the page
+  // Redirect to workouts if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/workouts');
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
-      const response = await fetch('https://fitnessapp-api-ln8u.onrender.com/users/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,10 +39,12 @@ const Login = () => {
         throw new Error(errorData.message || 'Login failed! Please check your credentials.');
       }
 
-      const userData = await response.json();
-      login(userData); // Store user data in context and localStorage
-      navigate('/workouts'); // Redirect to workouts page
-
+      const loginData = await response.json();
+      const { access } = loginData;
+      
+      // Save the access token in the context and redirect to workouts
+      login(access);
+      navigate('/workouts');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,41 +53,33 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2>Login</h2>
-        {error && <p className="error-message">{error}</p>}
-        <form onSubmit={handleLogin}>
-          <div className="input-group">
-            <label htmlFor="email">Email:</label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <div className="register-link">
-          <p>Don't have an account? <a href="/register">Register here</a></p>
-        </div>
-      </div>
+    <div className="container">
+      <h2>Login</h2>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleSubmit} className="form">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="input"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="input"
+        />
+        <button type="submit" className="button" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+      <p>
+        Don't have an account? <Link to="/register" className="link">Register here.</Link>
+      </p>
     </div>
   );
 };

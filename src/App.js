@@ -1,26 +1,30 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
-import Navbar from './components/Navbar';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import Workouts from './pages/Workouts';
+import Register from './pages/Register';
+import NavBar from './components/NavBar';
 
-function App() {
+
+// Import other pages as needed
+
+const App = () => {
   return (
     <UserProvider>
-      <Router>
-        <Navbar />
+      <BrowserRouter>
+      <NavBar />
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/workouts" element={<Workouts />} />
-          <Route path="/" element={<Login />} /> {/* Default route */}
+          <Route path="/register" element={<Register />} />
+          {/* Add other routes here */}
         </Routes>
-      </Router>
+      </BrowserRouter>
     </UserProvider>
   );
-}
+};
 
 export default App;

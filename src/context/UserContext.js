@@ -1,43 +1,64 @@
+// // src/context/UserContext.js
+// import React, { createContext, useState } from 'react';
+
+// // Create the context
+// export const UserContext = createContext();
+
+// // Create a provider component
+// export const UserProvider = ({ children }) => {
+//   // State to hold user information
+//   const [user, setUser] = useState(null);
+
+//   // Function to handle user login
+//   const login = (userData) => {
+//     setUser(userData);
+//     // Optionally, save user data to localStorage or cookies
+//   };
+
+//   // Function to handle user logout
+//   const logout = () => {
+//     setUser(null);
+//     // Optionally, clear user data from localStorage or cookies
+//   };
+
+//   return (
+//     <UserContext.Provider value={{ user, login, logout }}>
+//       {children}
+//     </UserContext.Provider>
+//   );
+// };
+
+
 // src/context/UserContext.js
 import React, { createContext, useState, useEffect } from 'react';
 
-// Create the UserContext
+// Create the context
 export const UserContext = createContext();
 
-// UserProvider Component
+// Create a provider component
 export const UserProvider = ({ children }) => {
-  // Initialize user state from localStorage, if available
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('filnessUser');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  // State to hold user information
+  const [user, setUser] = useState(null);
+
+  // Load user data from localStorage when the component mounts
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   // Function to handle user login
-  const login = (userInfo) => {
-    setUser(userInfo);
-    localStorage.setItem('filnessUser', JSON.stringify(userInfo));
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData)); // Save to localStorage
   };
 
   // Function to handle user logout
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('filnessUser');
+    localStorage.removeItem('user'); // Remove from localStorage
   };
-
-  // Optional: Synchronize state across tabs/windows
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'filnessUser') {
-        setUser(event.newValue ? JSON.parse(event.newValue) : null);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
 
   return (
     <UserContext.Provider value={{ user, login, logout }}>
