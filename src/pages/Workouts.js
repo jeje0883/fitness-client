@@ -35,30 +35,30 @@ const Workouts = () => {
   }, [user, navigate]);
 
   // Fetch workouts when the component mounts or user changes
-  useEffect(() => {
-    const fetchWorkouts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/getMyWorkouts`, {
-          headers: {
-            'Authorization': `Bearer ${user}`,
-          },
-        });
+  const fetchWorkouts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/getMyWorkouts`, {
+        headers: {
+          'Authorization': `Bearer ${user}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch workouts: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setWorkouts(data.workouts || data); // Adjust based on API response structure
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workouts: ${response.statusText}`);
       }
-    };
 
+      const data = await response.json();
+      setWorkouts(data.workouts || data); // Adjust based on API response structure
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (user) {
       fetchWorkouts();
     }
@@ -88,10 +88,8 @@ const Workouts = () => {
         throw new Error(`Failed to add workout: ${response.statusText}`);
       }
 
-      const addedWorkout = await response.json();
-      setWorkouts((prevWorkouts) => Array.isArray(prevWorkouts) ? [...prevWorkouts, addedWorkout] : [addedWorkout]);
-
       setNewWorkout({ name: '', duration: '' }); // Reset form
+      await fetchWorkouts(); // Re-fetch workouts to reflect new entry
     } catch (err) {
       setError(err.message);
     }
@@ -111,26 +109,17 @@ const Workouts = () => {
         throw new Error(`Failed to update workout status: ${response.statusText}`);
       }
 
-      setWorkouts((prevWorkouts) =>
-        Array.isArray(prevWorkouts)
-          ? prevWorkouts.map((workout) =>
-              workout.id === id ? { ...workout, completed: true } : workout
-            )
-          : []
-      );
+      await fetchWorkouts(); // Re-fetch workouts to reflect updated status
     } catch (err) {
       setError(err.message);
     }
   };
 
   // Delete workout
-  // Delete workout
   const handleDeleteWorkout = async (id) => {
     // Confirm before deleting
     const isConfirmed = window.confirm('Are you sure you want to delete this workout?');
-    if (!isConfirmed) {
-      return; // Exit the function if the user clicks 'Cancel'
-    }
+    if (!isConfirmed) return; // Exit the function if the user clicks 'Cancel'
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/deleteWorkout/${id}`, {
@@ -144,17 +133,11 @@ const Workouts = () => {
         throw new Error(`Failed to delete workout: ${response.statusText}`);
       }
 
-      // Update the workouts state by filtering out the deleted workout
-      setWorkouts((prevWorkouts) =>
-        Array.isArray(prevWorkouts)
-          ? prevWorkouts.filter((workout) => (workout.id || workout._id) !== id)
-          : []
-      );
+      await fetchWorkouts(); // Re-fetch workouts to reflect deletion
     } catch (err) {
       setError(err.message);
     }
   };
-
 
   // Update workout
   const handleUpdateWorkout = async (e) => {
@@ -180,18 +163,8 @@ const Workouts = () => {
         throw new Error(`Failed to update workout: ${response.statusText}`);
       }
 
-      const updatedWorkout = await response.json();
-      setWorkouts((prevWorkouts) =>
-        Array.isArray(prevWorkouts)
-          ? prevWorkouts.map((workout) =>
-              workout.id === updatedWorkout.id || workout._id === updatedWorkout._id
-                ? updatedWorkout
-                : workout
-            )
-          : []
-      );
-
       setEditWorkout(null); // Close edit modal
+      await fetchWorkouts(); // Re-fetch workouts to reflect the updated entry
     } catch (err) {
       setError(err.message);
     }
@@ -203,7 +176,7 @@ const Workouts = () => {
 
   return (
     <div className="container">
-      <h2>Welcome, {userEmail || 'User'}!</h2> {/* Use decoded email or fallback */}
+      <h2>Welcome, {user.email || 'User'}!</h2> {/* Use decoded email or fallback */}
 
       {loading && <p>Loading workouts...</p>}
       {error && <p className="error">{error}</p>}
