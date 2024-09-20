@@ -1,12 +1,10 @@
 
 
-import React, { useState, useContext } from 'react';
-import { UserContext } from '../context/UserContext';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/sharedStyles.css'; // Import the CSS file
 
 const Register = () => {
-  const { login } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
