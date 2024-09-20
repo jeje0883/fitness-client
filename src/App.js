@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Workouts from './pages/Workouts';
 import Register from './pages/Register';
-import NavBar from './components/NavBar';
+import NavBar from './components/Navbar';
 
 
 // Import other pages as needed
