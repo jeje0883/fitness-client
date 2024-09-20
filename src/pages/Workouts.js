@@ -14,6 +14,7 @@ const Workouts = () => {
   const [error, setError] = useState(null);
   const [newWorkout, setNewWorkout] = useState({ name: '', duration: '' });
   const [editWorkout, setEditWorkout] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Unified error handler
   const handleError = (message) => {
@@ -146,6 +147,115 @@ const Workouts = () => {
     }
   };
 
+  // return (
+  //   <div className="container">
+  //     <h2>Welcome, {user?.email || 'User'}!</h2>
+
+  //     {loading && <p>Loading workouts...</p>}
+  //     {error && <p className="error">{error}</p>}
+
+  //     {!loading && !error && (
+  //       <>
+  //         <section className="add-workout-section">
+  //           <h3>Add New Workout</h3>
+  //           <form onSubmit={handleAddWorkout} className="workout-form">
+  //             <input
+  //               type="text"
+  //               name="name"
+  //               placeholder="Workout Name"
+  //               value={newWorkout.name}
+  //               onChange={(e) => setNewWorkout({ ...newWorkout, name: e.target.value })}
+  //               required
+  //             />
+  //             <input
+  //               type="text"
+  //               name="duration"
+  //               placeholder="Duration (e.g., 30 mins)"
+  //               value={newWorkout.duration}
+  //               onChange={(e) => setNewWorkout({ ...newWorkout, duration: e.target.value })}
+  //               required
+  //             />
+  //             <button type="submit" className="button">Add Workout</button>
+  //           </form>
+  //         </section>
+
+  //         <section className="workout-list-section">
+  //           {workouts.length > 0 ? (
+  //             <table className="workout-table">
+  //               <thead>
+  //                 <tr>
+  //                   <th>#</th>
+  //                   <th>Workout Name</th>
+  //                   <th>Duration</th>
+  //                   <th>Status</th>
+  //                   <th>Actions</th>
+  //                 </tr>
+  //               </thead>
+  //               <tbody>
+  //                 {workouts.map((workout, index) => (
+  //                   <tr key={workout.id || workout._id || index}>
+  //                     <td>{index + 1}</td>
+  //                     <td>{workout.name}</td>
+  //                     <td>{workout.duration}</td>
+  //                     <td>
+  //                       <button
+  //                         onClick={() => handleMarkAsDone(workout.id || workout._id)}
+  //                         className={workout.completed || workout.status === 'completed' ? 'button-green' : 'button-yellow'}
+  //                         disabled={workout.completed || workout.status === 'completed'}
+  //                       >
+  //                         {workout.completed || workout.status === 'completed' ? 'Done' : 'Mark as Done'}
+  //                       </button>
+  //                     </td>
+  //                     <td>
+  //                       <button onClick={() => setEditWorkout(workout)} className="button-blue">Edit</button>
+  //                       <button onClick={() => handleDeleteWorkout(workout.id || workout._id)} className="button-red">Delete</button>
+  //                     </td>
+  //                   </tr>
+  //                 ))}
+  //               </tbody>
+  //             </table>
+  //           ) : (
+  //             <p>No workouts found. Start adding some!</p>
+  //           )}
+  //         </section>
+  //       </>
+  //     )}
+
+  //     {/* Edit Workout Modal */}
+  //     {editWorkout && ReactDOM.createPortal(
+  //       <div className="modal-overlay" onClick={() => setEditWorkout(null)}>
+  //         <div className="modal" onClick={(e) => e.stopPropagation()}>
+  //           <h3>Edit Workout</h3>
+  //           <form onSubmit={handleUpdateWorkout} className="workout-form">
+  //             <input
+  //               type="text"
+  //               name="name"
+  //               placeholder="Workout Name"
+  //               value={editWorkout.name}
+  //               onChange={(e) => setEditWorkout({ ...editWorkout, name: e.target.value })}
+  //               required
+  //             />
+  //             <input
+  //               type="text"
+  //               name="duration"
+  //               placeholder="Duration (e.g., 30 mins)"
+  //               value={editWorkout.duration}
+  //               onChange={(e) => setEditWorkout({ ...editWorkout, duration: e.target.value })}
+  //               required
+  //             />
+  //             <div className="modal-actions">
+  //               <button type="submit" className="button">Update Workout</button>
+  //               <button type="button" onClick={() => setEditWorkout(null)} className="button button-secondary">Cancel</button>
+  //             </div>
+  //           </form>
+  //         </div>
+  //       </div>,
+  //       document.body 
+  //     )}
+  //   </div>
+  // );
+
+
   return (
     <div className="container">
       <h2>Welcome, {user?.email || 'User'}!</h2>
@@ -156,26 +266,7 @@ const Workouts = () => {
       {!loading && !error && (
         <>
           <section className="add-workout-section">
-            <h3>Add New Workout</h3>
-            <form onSubmit={handleAddWorkout} className="workout-form">
-              <input
-                type="text"
-                name="name"
-                placeholder="Workout Name"
-                value={newWorkout.name}
-                onChange={(e) => setNewWorkout({ ...newWorkout, name: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                name="duration"
-                placeholder="Duration (e.g., 30 mins)"
-                value={newWorkout.duration}
-                onChange={(e) => setNewWorkout({ ...newWorkout, duration: e.target.value })}
-                required
-              />
-              <button type="submit" className="button">Add Workout</button>
-            </form>
+            <button onClick={() => setShowAddModal(true)} className="button">Add New Workout</button>
           </section>
 
           <section className="workout-list-section">
@@ -220,6 +311,38 @@ const Workouts = () => {
         </>
       )}
 
+      {/* Add Workout Modal */}
+      {showAddModal && ReactDOM.createPortal(
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Add New Workout</h3>
+            <form onSubmit={handleAddWorkout} className="workout-form">
+              <input
+                type="text"
+                name="name"
+                placeholder="Workout Name"
+                value={newWorkout.name}
+                onChange={(e) => setNewWorkout({ ...newWorkout, name: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                name="duration"
+                placeholder="Duration (e.g., 30 mins)"
+                value={newWorkout.duration}
+                onChange={(e) => setNewWorkout({ ...newWorkout, duration: e.target.value })}
+                required
+              />
+              <div className="modal-actions">
+                <button id="addWorkout" type="submit" className="button">Add Workout</button>
+                <button type="button" onClick={() => setShowAddModal(false)} className="button button-secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Edit Workout Modal */}
       {editWorkout && ReactDOM.createPortal(
         <div className="modal-overlay" onClick={() => setEditWorkout(null)}>
@@ -249,10 +372,12 @@ const Workouts = () => {
             </form>
           </div>
         </div>,
-        document.body 
+        document.body
       )}
     </div>
   );
+
+
 };
 
 export default Workouts;
