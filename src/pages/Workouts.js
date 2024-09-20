@@ -1,48 +1,32 @@
-// src/pages/Workouts.js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import ReactDOM from 'react-dom';  // Add this line
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';  // Import jwt-decode
 import '../styles/sharedStyles.css'; // Import the CSS file
 
+
 const Workouts = () => {
-  const { user } = useContext(UserContext); // user is the JWT token string
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
+
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newWorkout, setNewWorkout] = useState({ name: '', duration: '' });
-  const [editWorkout, setEditWorkout] = useState(null); // Holds workout details for editing
-  const [userEmail, setUserEmail] = useState('');
+  const [editWorkout, setEditWorkout] = useState(null);
 
-  // Decode the JWT token to get user information
-  useEffect(() => {
-    if (user) {
-      try {
-        const decoded = jwtDecode(user);
-        setUserEmail(decoded.email);
-      } catch (err) {
-        setError('Invalid token. Please log in again.');
-      }
-    }
-  }, [user]);
+  // Unified error handler
+  const handleError = (message) => {
+    console.error(message);
+    setError(message);
+    setLoading(false);
+  };
 
-  // Redirect to login if user is not authenticated
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  // Fetch workouts when the component mounts or user changes
-  const fetchWorkouts = async () => {
-    setLoading(true);
-    setError(null);
+  // Fetch workouts when the user is logged in
+  const fetchWorkouts = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/getMyWorkouts`, {
-        headers: {
-          'Authorization': `Bearer ${user}`,
-        },
+      const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/workouts/getMyWorkouts`, {
+        headers: { 'Authorization': `Bearer ${user}` },
       });
 
       if (!response.ok) {
@@ -50,32 +34,32 @@ const Workouts = () => {
       }
 
       const data = await response.json();
-      setWorkouts(data.workouts || data); // Adjust based on API response structure
+      setWorkouts(data.workouts || data);
     } catch (err) {
-      setError(err.message);
+      handleError(`Error fetching workouts: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchWorkouts();
-    }
   }, [user]);
 
-  // Add workout
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    } else {
+      fetchWorkouts();
+    }
+  }, [user, navigate, fetchWorkouts]);
+
+  // Add new workout
   const handleAddWorkout = async (e) => {
     e.preventDefault();
-
-    // Basic validation
     if (!newWorkout.name.trim() || !newWorkout.duration.trim()) {
       setError('Please provide both name and duration for the workout.');
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/addWorkout`, {
+      const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/workouts/addWorkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,69 +72,61 @@ const Workouts = () => {
         throw new Error(`Failed to add workout: ${response.statusText}`);
       }
 
-      setNewWorkout({ name: '', duration: '' }); // Reset form
-      await fetchWorkouts(); // Re-fetch workouts to reflect new entry
+      setNewWorkout({ name: '', duration: '' });
+      fetchWorkouts();
     } catch (err) {
-      setError(err.message);
+      handleError(`Error adding workout: ${err.message}`);
     }
   };
 
-  // Mark as done 
+  // Mark workout as done
   const handleMarkAsDone = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/completeWorkoutStatus/${id}`, {
+      const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/workouts/completeWorkoutStatus/${id}`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${user}`,
-        },
+        headers: { 'Authorization': `Bearer ${user}` },
       });
 
       if (!response.ok) {
         throw new Error(`Failed to update workout status: ${response.statusText}`);
       }
 
-      await fetchWorkouts(); // Re-fetch workouts to reflect updated status
+      fetchWorkouts();
     } catch (err) {
-      setError(err.message);
+      handleError(`Error marking workout as done: ${err.message}`);
     }
   };
 
   // Delete workout
   const handleDeleteWorkout = async (id) => {
-    // Confirm before deleting
-    const isConfirmed = window.confirm('Are you sure you want to delete this workout?');
-    if (!isConfirmed) return; // Exit the function if the user clicks 'Cancel'
+    if (window.confirm('Are you sure you want to delete this workout?')) {
+      try {
+        const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/workouts/deleteWorkout/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${user}` },
+        });
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/deleteWorkout/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user}`,
-        },
-      });
+        if (!response.ok) {
+          throw new Error(`Failed to delete workout: ${response.statusText}`);
+        }
 
-      if (!response.ok) {
-        throw new Error(`Failed to delete workout: ${response.statusText}`);
+        fetchWorkouts();
+      } catch (err) {
+        handleError(`Error deleting workout: ${err.message}`);
       }
-
-      await fetchWorkouts(); // Re-fetch workouts to reflect deletion
-    } catch (err) {
-      setError(err.message);
     }
   };
 
   // Update workout
   const handleUpdateWorkout = async (e) => {
     e.preventDefault();
-
-    // Basic validation
     if (!editWorkout.name.trim() || !editWorkout.duration.trim()) {
       setError('Please provide both name and duration for the workout.');
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/workouts/updateWorkout/${editWorkout.id || editWorkout._id}`, {
+      const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/workouts/updateWorkout/${editWorkout.id || editWorkout._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -163,20 +139,16 @@ const Workouts = () => {
         throw new Error(`Failed to update workout: ${response.statusText}`);
       }
 
-      setEditWorkout(null); // Close edit modal
-      await fetchWorkouts(); // Re-fetch workouts to reflect the updated entry
+      setEditWorkout(null);
+      fetchWorkouts();
     } catch (err) {
-      setError(err.message);
+      handleError(`Error updating workout: ${err.message}`);
     }
   };
 
-  if (!user) {
-    return null; // Optionally, you can return a loader or a placeholder
-  }
-
   return (
     <div className="container">
-      <h2>Welcome, {user.email || 'User'}!</h2> {/* Use decoded email or fallback */}
+      <h2>Welcome, {user?.email || 'User'}!</h2>
 
       {loading && <p>Loading workouts...</p>}
       {error && <p className="error">{error}</p>}
@@ -202,9 +174,7 @@ const Workouts = () => {
                 onChange={(e) => setNewWorkout({ ...newWorkout, duration: e.target.value })}
                 required
               />
-              <button type="submit" className="button">
-                Add Workout
-              </button>
+              <button type="submit" className="button">Add Workout</button>
             </form>
           </section>
 
@@ -222,7 +192,7 @@ const Workouts = () => {
                 </thead>
                 <tbody>
                   {workouts.map((workout, index) => (
-                    <tr key={workout.id || workout._id}>
+                    <tr key={workout.id || workout._id || index}>
                       <td>{index + 1}</td>
                       <td>{workout.name}</td>
                       <td>{workout.duration}</td>
@@ -236,18 +206,8 @@ const Workouts = () => {
                         </button>
                       </td>
                       <td>
-                        <button
-                          onClick={() => setEditWorkout(workout)}
-                          className="button-blue"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteWorkout(workout.id || workout._id)}
-                          className="button-red"
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => setEditWorkout(workout)} className="button-blue">Edit</button>
+                        <button onClick={() => handleDeleteWorkout(workout.id || workout._id)} className="button-red">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -261,7 +221,7 @@ const Workouts = () => {
       )}
 
       {/* Edit Workout Modal */}
-      {editWorkout && (
+      {editWorkout && ReactDOM.createPortal(
         <div className="modal-overlay" onClick={() => setEditWorkout(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Edit Workout</h3>
@@ -283,20 +243,13 @@ const Workouts = () => {
                 required
               />
               <div className="modal-actions">
-                <button type="submit" className="button">
-                  Update Workout
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditWorkout(null)}
-                  className="button button-secondary"
-                >
-                  Cancel
-                </button>
+                <button type="submit" className="button">Update Workout</button>
+                <button type="button" onClick={() => setEditWorkout(null)} className="button button-secondary">Cancel</button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body 
       )}
     </div>
   );

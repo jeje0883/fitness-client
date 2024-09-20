@@ -14,7 +14,7 @@ const App = () => {
   return (
     <UserProvider>
       <BrowserRouter>
-      <NavBar />
+        <NavBar />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
@@ -25,6 +25,7 @@ const App = () => {
       </BrowserRouter>
     </UserProvider>
   );
+  
 };
 
 export default App;

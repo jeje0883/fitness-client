@@ -26,7 +26,7 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/login`, {
+      const response = await fetch(`https://fitnessapp-api-ln8u.onrender.com/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
