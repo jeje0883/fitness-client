@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import '../styles/sharedStyles.css'; // Import the CSS file
 
-const Navbar = () => {
+const NavBar = () => {
   const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    logout(); // This clears the user context
+    navigate('/login'); // This navigates back to the login page
   };
 
   return (
@@ -33,4 +33,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavBar;

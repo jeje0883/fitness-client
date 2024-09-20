@@ -1,32 +1,3 @@
-// // src/context/UserContext.js
-// import React, { createContext, useState } from 'react';
-
-// // Create the context
-// export const UserContext = createContext();
-
-// // Create a provider component
-// export const UserProvider = ({ children }) => {
-//   // State to hold user information
-//   const [user, setUser] = useState(null);
-
-//   // Function to handle user login
-//   const login = (userData) => {
-//     setUser(userData);
-//     // Optionally, save user data to localStorage or cookies
-//   };
-
-//   // Function to handle user logout
-//   const logout = () => {
-//     setUser(null);
-//     // Optionally, clear user data from localStorage or cookies
-//   };
-
-//   return (
-//     <UserContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </UserContext.Provider>
-//   );
-// };
 
 
 // src/context/UserContext.js
